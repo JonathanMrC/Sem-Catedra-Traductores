@@ -54,11 +54,7 @@ namespace WindowsFormsApp1
                 cad_act += c;
                 if (e == 0)
                 {
-                    if (c == ' ' || c == '\r' || c == '\n')
-                    {
-                        cad_act = "";
-                        continue;
-                    }
+                    if (c == ' ' || c == '\r' || c == '\n') cad_act = "";
                     else if (c_reservados.ContainsKey(cad_act)) EstadoFinal(cad_act, ref cad_act, c_reservados[cad_act], ref e);
                     else if (EsLetra(c, 0) || c == '_') e = 1;
                     else if (EsNum(c)) e = 2;
@@ -69,15 +65,11 @@ namespace WindowsFormsApp1
                     else if (c == '<' || c == '>') e = 5;
                     else if (c == '!') e = 6;
                     else if (c == '$') tokens.Enqueue(new token("Fin", "$", 18));
-                    else
-                    {
-                        EstadoFinal("Error", ref cad_act, -1, ref e);
-                    }
+                    else EstadoFinal("Error", ref cad_act, -1, ref e);
                 }
                 else if (e == 1)
                 {
-                    if (EsLetra(c, 0) || c == '_' || EsNum(c)) continue;
-                    else
+                    if (!EsLetra(c, 0) && c != '_' && !EsNum(c))
                     {
                         act--;
                         cad_act = cad_act.Substring(0, cad_act.Length - 1);
@@ -88,9 +80,8 @@ namespace WindowsFormsApp1
                 }
                 else if (e == 2)
                 {
-                    if (EsNum(c)) continue;
-                    else if (c == '.') e = 4;
-                    else
+                    if (c == '.') e = 4;
+                    else if(!EsNum(c))
                     {
                         act--;
                         cad_act = cad_act.Substring(0, cad_act.Length - 1);
@@ -109,11 +100,11 @@ namespace WindowsFormsApp1
                 }
                 else if (e == 4)
                 {
-                    if (EsNum(c)) continue;
-                    else
+                    if (EsNum(c)) e = 7;
+                    else 
                     {
-                        act--;
-                        cad_act = cad_act.Substring(0, cad_act.Length - 1);
+                        act-=2;
+                        cad_act = cad_act.Substring(0, cad_act.Length - 2);
                         EstadoFinal("Constante", ref cad_act, 13, ref e);
                     }
                 }
@@ -135,6 +126,15 @@ namespace WindowsFormsApp1
                         act--;
                         cad_act = cad_act.Substring(0, cad_act.Length - 1);
                         EstadoFinal("Error", ref cad_act, -1, ref e);
+                    }
+                }
+                else if(e == 7)
+                {
+                    if (!EsNum(c))
+                    {
+                        act--;
+                        cad_act = cad_act.Substring(0, cad_act.Length - 1);
+                        EstadoFinal("Constante", ref cad_act, 17, ref e);
                     }
                 }
                 else
