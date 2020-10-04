@@ -8,6 +8,12 @@ namespace WindowsFormsApp1
 {
     class token
     {
+        public token(string nombre, string lexema, int id)
+        {
+            this.nombre = nombre;
+            this.lexema = lexema;
+            this.id = id;
+        }
         string lexema, nombre;
         int id;
 
