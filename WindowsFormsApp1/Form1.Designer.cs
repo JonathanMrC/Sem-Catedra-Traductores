@@ -36,7 +36,9 @@
             // 
             // BtnAnalizar
             // 
-            this.BtnAnalizar.Location = new System.Drawing.Point(389, 91);
+            this.BtnAnalizar.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.BtnAnalizar.Location = new System.Drawing.Point(689, 13);
             this.BtnAnalizar.MaximumSize = new System.Drawing.Size(75, 47);
             this.BtnAnalizar.MinimumSize = new System.Drawing.Size(75, 47);
             this.BtnAnalizar.Name = "BtnAnalizar";
@@ -50,10 +52,10 @@
             // 
             this.dgv.AllowUserToAddRows = false;
             this.dgv.AllowUserToDeleteRows = false;
+            this.dgv.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.dgv.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.dgv.Location = new System.Drawing.Point(13, 223);
-            this.dgv.MaximumSize = new System.Drawing.Size(1080, 215);
-            this.dgv.MinimumSize = new System.Drawing.Size(775, 215);
             this.dgv.Name = "dgv";
             this.dgv.ReadOnly = true;
             this.dgv.Size = new System.Drawing.Size(775, 215);
@@ -61,13 +63,13 @@
             // 
             // txtbox
             // 
+            this.txtbox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.txtbox.Font = new System.Drawing.Font("Microsoft Sans Serif", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.txtbox.Location = new System.Drawing.Point(13, 13);
-            this.txtbox.MaximumSize = new System.Drawing.Size(670, 204);
-            this.txtbox.MinimumSize = new System.Drawing.Size(370, 204);
             this.txtbox.Multiline = true;
             this.txtbox.Name = "txtbox";
-            this.txtbox.Size = new System.Drawing.Size(370, 204);
+            this.txtbox.Size = new System.Drawing.Size(670, 204);
             this.txtbox.TabIndex = 4;
             // 
             // Form
