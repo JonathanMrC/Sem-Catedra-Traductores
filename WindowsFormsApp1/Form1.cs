@@ -26,6 +26,14 @@ namespace WindowsFormsApp1
             InitializeComponent();
             Formatodgv();
         }
+        void Formatodgv()
+        {
+            dgv.Columns.Clear();
+            dgv.DefaultCellStyle.Font = new Font("Microsoft Sans Serif", 12);
+            dgv.Columns.Add("", "");
+            dgv.Rows.Add("Lexema"); dgv.Rows.Add("Id");dgv.Rows.Add("Nombre");
+            dgv.Refresh();
+        }
         private void BtnAnalizar_Click(object sender, EventArgs e)
         {
             Formatodgv();
@@ -34,8 +42,7 @@ namespace WindowsFormsApp1
         }
         void AgregarCont()
         {
-            while(tokens.Count > 0)
-            {
+            while(tokens.Count > 0){
                 token t = tokens.Dequeue();
                 int pos = dgv.Columns.Add("", "");
                 dgv[pos, 0].Value = t.Lexema;
@@ -137,11 +144,6 @@ namespace WindowsFormsApp1
                         EstadoFinal("Constante", ref cad_act, 17, ref e);
                     }
                 }
-                else
-                {
-                    MessageBox.Show("Error estado no encontrado, cadena actual: "+cad_act);
-                    return;
-                }
             }
         }
         void EstadoFinal(string nombre,ref string lexema, int id, ref int e)
@@ -164,15 +166,6 @@ namespace WindowsFormsApp1
         {
             return (x >= '0' && x <= '9');
         }
-        void Formatodgv()
-        {
-            dgv.Columns.Clear();
-            dgv.DefaultCellStyle.Font = new Font("Microsoft Sans Serif", 12);
-            dgv.Columns.Add("", "");
-            dgv.Rows.Add("Lexema");
-            dgv.Rows.Add("Id");
-            dgv.Rows.Add("Nombre");
-            dgv.Refresh();
-        }
+        
     }
 }
