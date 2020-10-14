@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.IO;
 
 namespace WindowsFormsApp1
 {
@@ -16,15 +17,51 @@ namespace WindowsFormsApp1
         HashSet<string> tipodato;
         Dictionary<string, int> reservadas;
         Dictionary<string, int> c_reservados;
-
+        List<Point> reglas;
+        List<List<int>> tabla;
+        bool valido = true;
+        
         public Form()
         {
+            reglas = new List<Point>();
+            tabla = new List<List<int>>();
             c_reservados = new Dictionary<string, int> { { ";", 2 }, { ",", 3 }, { "(", 4 }, { ")", 5 }, { "{", 6 }, { "}", 7 } };
             reservadas = new Dictionary<string, int>{{ "if", 9 }, { "while", 10 }, { "return", 11 }, { "else", 12 } };
             tipodato = new HashSet<string> { "int", "float", "char", "void" };
             tokens = new Queue<token>();
+            CargarDatos();
             InitializeComponent();
             Formatodgv();
+        }
+        void CargarDatos()//Leer reglas y tabla
+        {
+            string dir_reglas = "GR2slrRulesId.txt", dir_tabla = "GR2slrTablebien.txt", linea;
+            if (!File.Exists(dir_reglas) || !File.Exists(dir_tabla))
+            {
+                MessageBox.Show("No se encuentra el archivo "+dir_reglas+" o "+dir_tabla +"\r\nColocar estos archivos en la misma carpeta del ejecutable");
+                return;
+            }
+            StreamReader archivo = new StreamReader(dir_reglas);
+            linea = archivo.ReadLine();   
+            while (linea != null)
+            {
+                string[] par = linea.Split('\t');
+                reglas.Add(new Point(StringtoInt(par[0]), StringtoInt(par[1])));
+                linea = archivo.ReadLine();
+            }
+            archivo.Close();
+            tabla = new List<List<int>>();
+            archivo = new StreamReader(dir_tabla);
+            linea = archivo.ReadLine();
+            while (linea != null)
+            {
+                string[] columnas = linea.Split('\t');
+                List<int> temp = new List<int>();
+                foreach (string s in columnas) temp.Add(StringtoInt(s));
+                linea = archivo.ReadLine();
+                tabla.Add(temp);
+            }
+            archivo.Close();
         }
         void Formatodgv()
         {
@@ -39,6 +76,19 @@ namespace WindowsFormsApp1
             Formatodgv();
             AnalizadorLexico(txtbox.Text + "$");
             AgregarCont();
+            if (reglas.Count != 0) AnalizadorSintactico();
+            else MessageBox.Show("No se puede realizar el analizis de sintaxis, sin los archivos de reglas y tabla");
+        }
+        void AnalizadorSintactico()
+        {
+
+            MostrarR();//muestra el resultado
+        }
+        void MostrarR()
+        {
+            if(valido)txtbox.BackColor = Color.LightGreen;
+            else txtbox.BackColor = Color.LightCoral;
+            valido = !valido;
         }
         void AgregarCont()
         {
@@ -166,6 +216,21 @@ namespace WindowsFormsApp1
         {
             return (x >= '0' && x <= '9');
         }
-        
+        int StringtoInt(string s)
+        {
+            int t = 0, i = 0;
+            bool n = false;
+            if (s[0] == '-')
+            {
+                n = true;
+                ++i;
+            }
+            for(;i < s.Count();++i)
+            {
+                t *= 10;
+                t += s[i] - '0';
+            }
+            return n? -t : t;
+        }
     }
 }

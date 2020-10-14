@@ -38,3 +38,13 @@ C:\Users\jonat\Desktop\this\Trad2\Programas\WindowsFormsApp1\obj\Debug\Analizado
 C:\Users\jonat\Desktop\this\Trad2\Programas\WindowsFormsApp1\obj\Debug\AnalizadorLexico.csproj.CoreCompileInputs.cache
 C:\Users\jonat\Desktop\this\Trad2\Programas\WindowsFormsApp1\obj\Debug\WindowsFormsApp1.exe
 C:\Users\jonat\Desktop\this\Trad2\Programas\WindowsFormsApp1\obj\Debug\WindowsFormsApp1.pdb
+C:\Users\jonat\Desktop\Semestre_Act\Trad2\Programas\WindowsFormsApp1\bin\Debug\WindowsFormsApp1.exe.config
+C:\Users\jonat\Desktop\Semestre_Act\Trad2\Programas\WindowsFormsApp1\bin\Debug\WindowsFormsApp1.exe
+C:\Users\jonat\Desktop\Semestre_Act\Trad2\Programas\WindowsFormsApp1\bin\Debug\WindowsFormsApp1.pdb
+C:\Users\jonat\Desktop\Semestre_Act\Trad2\Programas\WindowsFormsApp1\obj\Debug\AnalizadorLexico.csprojAssemblyReference.cache
+C:\Users\jonat\Desktop\Semestre_Act\Trad2\Programas\WindowsFormsApp1\obj\Debug\WindowsFormsApp1.Form.resources
+C:\Users\jonat\Desktop\Semestre_Act\Trad2\Programas\WindowsFormsApp1\obj\Debug\WindowsFormsApp1.Properties.Resources.resources
+C:\Users\jonat\Desktop\Semestre_Act\Trad2\Programas\WindowsFormsApp1\obj\Debug\AnalizadorLexico.csproj.GenerateResource.cache
+C:\Users\jonat\Desktop\Semestre_Act\Trad2\Programas\WindowsFormsApp1\obj\Debug\AnalizadorLexico.csproj.CoreCompileInputs.cache
+C:\Users\jonat\Desktop\Semestre_Act\Trad2\Programas\WindowsFormsApp1\obj\Debug\WindowsFormsApp1.exe
+C:\Users\jonat\Desktop\Semestre_Act\Trad2\Programas\WindowsFormsApp1\obj\Debug\WindowsFormsApp1.pdb
