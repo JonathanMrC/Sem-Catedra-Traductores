@@ -124,7 +124,8 @@ namespace WindowsFormsApp1
                     else if (EsNum(c)) e = 2;
                     else if (c == '-' || c == '+') EstadoFinal("OpSuma", ref cad_act, 14, ref e);
                     else if (c == '*' || c == '/') EstadoFinal("OpMultiplicacion", ref cad_act, 16, ref e);
-                    else if (c == '|' || c == '&') e = 8;
+                    else if (c == '|') e = 8;
+                    else if (c == '&') e = 9;
                     else if (c == '=') e = 3;
                     else if (c == '<' || c == '>') e = 5;
                     else if (c == '!') e = 6;
@@ -203,7 +204,18 @@ namespace WindowsFormsApp1
                 }
                 else if(e == 8)
                 {
-                    if (c == '|' || c == '&') EstadoFinal("OpLogico", ref cad_act, 15, ref e);
+                    if (c == '|') EstadoFinal("OpLogico", ref cad_act, 15, ref e);
+                    else
+                    {
+                        act--;
+                        cad_act = cad_act.Substring(0, cad_act.Length - 1);
+                        EstadoFinal("Error", ref cad_act, -1, ref e);
+                    }
+                }
+                else if(e == 9)
+                {
+
+                    if (c == '&') EstadoFinal("OpLogico", ref cad_act, 15, ref e);
                     else
                     {
                         act--;
