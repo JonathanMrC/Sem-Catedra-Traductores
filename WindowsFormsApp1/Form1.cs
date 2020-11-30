@@ -20,6 +20,7 @@ namespace WindowsFormsApp1
         List<Point> reglas;
         List<List<int>> tabla;
         bool BALE;
+        Nodo raiz;
         public Form()
         {
             c_reservados = new Dictionary<string, int> { { ";", 2 }, { ",", 3 }, { "(", 4 }, { ")", 5 }, { "{", 6 }, { "}", 7 } };
@@ -264,56 +265,54 @@ namespace WindowsFormsApp1
         {
             Stack<Nodo> pila = new Stack<Nodo>();
             pila.Push(new Nodo(new Token(0)));
-            Stack<Token> pila_tokens = new Stack<Token>(tokens.Reverse());
+            Stack<Nodo> pila_tokens = UpdateQTaPN(tokens);
             int valor_devuelto;
-            Nodo fila_act;
+            Nodo fila_act, token_act;
             while (pila_tokens.Count > 0)
             {
-                Token token_act = pila_tokens.Peek();
+                token_act = pila_tokens.Peek();
                 fila_act = pila.Peek();
-                valor_devuelto = tabla[fila_act.Token.Id][token_act.Id+1];
+                valor_devuelto = tabla[fila_act.Token.Id][token_act.Token.Id+1];
                 if (valor_devuelto < 0)                             //reduccion
                 {
                     if (valor_devuelto == -1) {                     //aceptada
-                        MostrarR(true, pila.Peek());
+                        pila.Pop();//estado
+                        MostrarR(true);
                         return;
                     }
                     ++valor_devuelto;                               //decremento la posicion
-                    int cant = reglas[-valor_devuelto].Y << 1;      //saco el lado derecho x2 de la pila
-                    //esta parte es la que voy a reemplazar cuando entienda como va esta cosa xD
-                    while (cant-- > 0) pila.Pop();              
-                    //**************************************************************************
-                    pila_tokens.Push(new Token("", "", reglas[-valor_devuelto].X));
+                    fila_act = Transicion(pila, -valor_devuelto);
+                    fila_act.Token.Id = reglas[-valor_devuelto].X;
+                    pila_tokens.Push(fila_act);//paso la pila y la regla, para hacer los pops correspondientes
                 }
                 else if (valor_devuelto > 0)                        //si cae aquí el token actual es descartado
                 {                                                   //y se agrega su id en la pila junto con el anterior
                     pila_tokens.Pop();
-                    pila.Push(new Nodo(token_act));
+                    pila.Push(token_act);
                     pila.Push(new Nodo(new Token(valor_devuelto)));
                 }
                 else break;                                         //no aceptada
             }
-            MostrarR(false, pila.Peek());
+            raiz = pila.Pop();
+            MostrarR(false);
             return;
         }
-        void MostrarR(bool b, Nodo raiz)
+        void MostrarR(bool b)
         {
-            if (b)
-            {
-                MessageBox.Show("Valido");
-                txtbox.BackColor = Color.LightGreen;
-            }
-            else
-            {
-                MessageBox.Show("Invalido");
-                txtbox.BackColor = Color.LightCoral;
-            }
-            MessageBox.Show("Quitar esto");
+            if (!b)
+                MessageBox.Show("Invalido", "Analizador Sintactico", MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
         #endregion
-        public Nodo NTaNT(Stack<Nodo> pila, int regla)
+
+        Stack<Nodo> UpdateQTaPN(Queue<Token> tokens)
         {
-            Nodo aux = new Nodo(new Token("FALSE", "", 0));
+            Stack<Nodo> pila = new Stack<Nodo>();
+            foreach (Token t in tokens.Reverse()) pila.Push(new Nodo(t));
+            return pila;
+        }
+        public Nodo Transicion(Stack<Nodo> pila, int regla)
+        {
+            Nodo aux = new Nodo(new Token("null", "", reglas[regla].X));
             //Programa -> Definiciones
             //Definicion -> DefVar
             //Definicion -> DefFunc
@@ -322,7 +321,7 @@ namespace WindowsFormsApp1
             //Expresion -> LlamadaFunc
             //SentenciaBloque -> Sentencia
             //SentenciaBloque->Bloque
-            if (regla == 2 || regla == 5 || regla == 6 || regla == 18 || regla == 19 || regla == 34 || regla == 38 || regla == 39)
+            if (regla == 0 || regla == 3 || regla == 4 || regla == 16 || regla == 17 || regla == 32 || regla == 36 || regla == 37)
             {
                 pila.Pop();//estado
                 aux = pila.Pop();//definiciones
@@ -330,7 +329,7 @@ namespace WindowsFormsApp1
             //BloqFunc -> { DefLocales }
             //Bloque -> { Sentencias }
             //Expresion -> ( Expresion )
-            else if (regla == 15 || regla == 29 || regla == 40)
+            else if (regla == 13 || regla == 27 || regla == 38)
             {
                 pila.Pop();//estado
                 pila.Pop();//{
@@ -339,20 +338,38 @@ namespace WindowsFormsApp1
                 pila.Pop();//estado
                 pila.Pop();//}
             }
-            else if (regla == 26)//sentencia -> llamadafunc ;
+            else if (regla == 24)//sentencia -> llamadafunc ;
             {
                 pila.Pop();//estado
                 pila.Pop();//;
                 pila.Pop();//estado
                 aux = pila.Pop();//llamadafunc
             }
-            else if (regla == 28)//Otro -> else SentenciaBloque
+            else if (regla == 26)//Otro -> else SentenciaBloque
             {
                 pila.Pop();//estado
                 aux = pila.Pop();//sentenciabloque
                 pila.Pop();//estado
                 pila.Pop();//else
             }
+            else if (regla == 2) aux = ReglasGeneran2(pila, reglas[regla].Y);
+            else if (regla == 5) aux = new DefVar(pila);
+            else if (regla == 7) aux = new ListaVar(pila);
+            else if (regla == 8) aux = new DefFunc(pila);
+            else if (regla == 10) aux = new Parametros(pila);
+            else if (regla == 12) aux = new ListaParam(pila);
+            else if (regla == 15) aux = ReglasGeneran2(pila, reglas[regla].Y);
+            else if (regla == 19) aux = ReglasGeneran2(pila, reglas[regla].Y);
+            else if (regla == 20) aux = new Asignacion(pila);
+            else if (regla == 21) aux = new ClaseIf(pila);
+            else if (regla == 22) aux = new ClaseWhile(pila);
+            else if (regla == 23) aux = new ClaseReturn(pila);
+            else if (regla == 29) aux = ReglasGeneran2(pila, reglas[regla].Y);
+            else if (regla == 31) aux = ReglasGeneran2(pila, reglas[regla].Y);
+            else if (regla == 33) aux = new Id(pila);
+            else if (regla == 34) aux = new Constante(pila);
+            else if (regla == 35) aux = new LlamadaFunc(pila);
+            else if (regla >= 39 && regla <= 42) aux = new Operacion(pila);
             return aux;
         }
         public Nodo ReglasGeneran2(Stack<Nodo> pila, int cant)
@@ -367,6 +384,7 @@ namespace WindowsFormsApp1
                 pila.Pop();//estado
                 pila.Pop();//,
             }
+            aux.Sig = sig;
             return aux;
         }
 

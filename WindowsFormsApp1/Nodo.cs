@@ -56,7 +56,14 @@ namespace WindowsFormsApp1
         {
             pila.Pop();//estado
             pila.Pop();//;
-            listavar = new ListaVar(pila);//listavar
+            pila.Pop();//estado
+            if (pila.Pop().Token.Nombre == "null")
+                listavar = null;
+            else
+            {
+                pila.Push(new Nodo());
+                listavar = new ListaVar(pila);//listavar
+            }
             id = new Id(pila);
             pila.Pop();//estado
             tipo = pila.Pop().Token.Lexema;
@@ -74,7 +81,14 @@ namespace WindowsFormsApp1
             BloqFunc = pila.Pop();//bloqfunc
             pila.Pop();//estado
             pila.Pop();//)
-            parametros = new Parametros(pila);//parametros
+            pila.Pop();//estado
+            if (pila.Pop().Token.Nombre == "null")
+                parametros = null;
+            else
+            {
+                pila.Push(new Nodo());
+                parametros = new Parametros(pila);//parametros
+            }
             pila.Pop();//estado
             pila.Pop();//(
             id = new Id(pila);
@@ -154,7 +168,9 @@ namespace WindowsFormsApp1
         public ClaseIf(Stack<Nodo>pila)
         {
             pila.Pop();//estado
-            Otro = pila.Pop();//otro
+            if (pila.Pop().Token.Nombre == "null")
+                Otro = null;
+            else Otro = pila.Pop();//otro
             pila.Pop();//estado
             SentenciaBloque = pila.Pop();//sentenciabloque
             pila.Pop();//estado
@@ -222,7 +238,9 @@ namespace WindowsFormsApp1
             pila.Pop();//estado
             pila.Pop();//(
             pila.Pop();//estado
-            argumentos = pila.Pop();//argumentos
+            if (pila.Pop().Token.Nombre == "null")
+                argumentos = null;
+            else argumentos = pila.Pop();//argumentos
             pila.Pop();//estado
             pila.Pop();//)
             id = new Id(pila);
