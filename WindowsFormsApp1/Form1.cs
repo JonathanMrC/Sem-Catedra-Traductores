@@ -13,21 +13,20 @@ namespace WindowsFormsApp1
 {
     public partial class Form : System.Windows.Forms.Form
     {
-        Queue<token> tokens;
+        Queue<Token> tokens;
         HashSet<string> tipodato;
         Dictionary<string, int> reservadas;
         Dictionary<string, int> c_reservados;
         List<Point> reglas;
         List<List<int>> tabla;
         bool BALE;
-
         public Form()
         {
             c_reservados = new Dictionary<string, int> { { ";", 2 }, { ",", 3 }, { "(", 4 }, { ")", 5 }, { "{", 6 }, { "}", 7 } };
             reservadas = new Dictionary<string, int>{{ "if", 9 }, { "while", 10 }, { "return", 11 }, { "else", 12 } };
             tipodato = new HashSet<string> { "int", "float", "char", "void" };
             tabla = new List<List<int>>();
-            tokens = new Queue<token>();
+            tokens = new Queue<Token>();
             reglas = new List<Point>();
             CargarDatos();
             BALE = false;
@@ -104,7 +103,7 @@ namespace WindowsFormsApp1
                 BALE = false;
             }
             else if (reglas.Count != 0) AnalizadorSintactico();
-            else MessageBox.Show("No se puede realizar el analizis de sintactico, sin las tablas de reglas y transiciones");
+            else MessageBox.Show("No se puede realizar el analizis sintactico, sin las tablas de reglas y transiciones");
         }
         
         #region Analizador Lexico       
@@ -129,7 +128,7 @@ namespace WindowsFormsApp1
                     else if (c == '=') e = 3;
                     else if (c == '<' || c == '>') e = 5;
                     else if (c == '!') e = 6;
-                    else if (c == '$') tokens.Enqueue(new token("Fin", "$", 18));
+                    else if (c == '$') tokens.Enqueue(new Token("Fin", "$", 18));
                     else EstadoFinal("Error", ref cad_act, -1, ref e);
                 }
                 else if (e == 1)
@@ -229,7 +228,7 @@ namespace WindowsFormsApp1
         {
             if (nombre == "Error") BALE = true;
             e = 0;
-            tokens.Enqueue(new token(nombre, lexema, id));
+            tokens.Enqueue(new Token(nombre, lexema, id));
             lexema = "";
             return;
         }
@@ -248,9 +247,9 @@ namespace WindowsFormsApp1
         }
         void AgregarCont()
         {
-            Queue<token> temp = new Queue<token>(tokens);
+            Queue<Token> temp = new Queue<Token>(tokens);
             while(temp.Count > 0){
-                token t = temp.Dequeue();
+                Token t = temp.Dequeue();
                 int pos = dgv.Columns.Add("", "");
                 dgv[pos, 0].Value = t.Lexema;
                 dgv[pos, 1].Value = t.Id;
@@ -263,38 +262,41 @@ namespace WindowsFormsApp1
         #region Analizador Sintactico
         void AnalizadorSintactico()
         {
-            Stack<int> pila = new Stack<int>();
-            pila.Push(0);
-            Stack<token> pila_tokens = new Stack<token>(tokens.Reverse());
-            int fila_act, valor_devuelto;
-            while(pila_tokens.Count > 0)
+            Stack<Nodo> pila = new Stack<Nodo>();
+            pila.Push(new Nodo(new Token(0)));
+            Stack<Token> pila_tokens = new Stack<Token>(tokens.Reverse());
+            int valor_devuelto;
+            Nodo fila_act;
+            while (pila_tokens.Count > 0)
             {
-                token token_act = pila_tokens.Peek();
+                Token token_act = pila_tokens.Peek();
                 fila_act = pila.Peek();
-                valor_devuelto = tabla[fila_act][token_act.Id+1];
+                valor_devuelto = tabla[fila_act.Token.Id][token_act.Id+1];
                 if (valor_devuelto < 0)                             //reduccion
                 {
                     if (valor_devuelto == -1) {                     //aceptada
-                        MostrarR(true);
+                        MostrarR(true, pila.Peek());
                         return;
                     }
                     ++valor_devuelto;                               //decremento la posicion
                     int cant = reglas[-valor_devuelto].Y << 1;      //saco el lado derecho x2 de la pila
+                    //esta parte es la que voy a reemplazar cuando entienda como va esta cosa xD
                     while (cant-- > 0) pila.Pop();              
-                    pila_tokens.Push(new token("", "", reglas[-valor_devuelto].X));
+                    //**************************************************************************
+                    pila_tokens.Push(new Token("", "", reglas[-valor_devuelto].X));
                 }
                 else if (valor_devuelto > 0)                        //si cae aquí el token actual es descartado
                 {                                                   //y se agrega su id en la pila junto con el anterior
                     pila_tokens.Pop();
-                    pila.Push(token_act.Id);
-                    pila.Push(valor_devuelto);
+                    pila.Push(new Nodo(token_act));
+                    pila.Push(new Nodo(new Token(valor_devuelto)));
                 }
                 else break;                                         //no aceptada
             }
-            MostrarR(false);
+            MostrarR(false, pila.Peek());
             return;
         }
-        void MostrarR(bool b)
+        void MostrarR(bool b, Nodo raiz)
         {
             if (b)
             {
@@ -306,7 +308,70 @@ namespace WindowsFormsApp1
                 MessageBox.Show("Invalido");
                 txtbox.BackColor = Color.LightCoral;
             }
+            MessageBox.Show("Quitar esto");
         }
         #endregion
+        public Nodo NTaNT(Stack<Nodo> pila, int regla)
+        {
+            Nodo aux = new Nodo(new Token("FALSE", "", 0));
+            //Programa -> Definiciones
+            //Definicion -> DefVar
+            //Definicion -> DefFunc
+            //DefLocal -> DefVar
+            //DefLocal->Sentencia
+            //Expresion -> LlamadaFunc
+            //SentenciaBloque -> Sentencia
+            //SentenciaBloque->Bloque
+            if (regla == 2 || regla == 5 || regla == 6 || regla == 18 || regla == 19 || regla == 34 || regla == 38 || regla == 39)
+            {
+                pila.Pop();//estado
+                aux = pila.Pop();//definiciones
+            }
+            //BloqFunc -> { DefLocales }
+            //Bloque -> { Sentencias }
+            //Expresion -> ( Expresion )
+            else if (regla == 15 || regla == 29 || regla == 40)
+            {
+                pila.Pop();//estado
+                pila.Pop();//{
+                pila.Pop();//estado
+                aux = pila.Pop();//deflocales
+                pila.Pop();//estado
+                pila.Pop();//}
+            }
+            else if (regla == 26)//sentencia -> llamadafunc ;
+            {
+                pila.Pop();//estado
+                pila.Pop();//;
+                pila.Pop();//estado
+                aux = pila.Pop();//llamadafunc
+            }
+            else if (regla == 28)//Otro -> else SentenciaBloque
+            {
+                pila.Pop();//estado
+                aux = pila.Pop();//sentenciabloque
+                pila.Pop();//estado
+                pila.Pop();//else
+            }
+            return aux;
+        }
+        public Nodo ReglasGeneran2(Stack<Nodo> pila, int cant)
+        {
+            Nodo aux = new Nodo(), sig;
+            pila.Pop();//estado
+            sig = pila.Pop();//sig
+            pila.Pop();//estado
+            aux = pila.Pop();//nodo
+            if(cant != 2)
+            {
+                pila.Pop();//estado
+                pila.Pop();//,
+            }
+            return aux;
+        }
+
     }
+
+
+
 }

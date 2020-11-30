@@ -6,12 +6,24 @@ using System.Threading.Tasks;
 
 namespace WindowsFormsApp1
 {
-    class token
+    public class Token
     {
-        public token(string nombre, string lexema, int id)
+        public Token(string nombre, string lexema, int id)
         {
             this.nombre = nombre;
             this.lexema = lexema;
+            this.id = id;
+        }
+        public Token()
+        {
+            this.nombre = "";
+            this.lexema = "";
+            this.id = 0;
+        }
+        public Token(int id)
+        {
+            this.nombre = "";
+            this.lexema = "";
             this.id = id;
         }
         string lexema, nombre;
