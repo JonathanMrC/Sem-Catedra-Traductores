@@ -277,13 +277,14 @@ namespace WindowsFormsApp1
                 {
                     if (valor_devuelto == -1) {                     //aceptada
                         pila.Pop();//estado
+                        raiz = pila.Pop();
                         MostrarR(true);
                         return;
                     }
                     ++valor_devuelto;                               //decremento la posicion
-                    fila_act = Transicion(pila, -valor_devuelto);
-                    fila_act.Token.Id = reglas[-valor_devuelto].X;
-                    pila_tokens.Push(fila_act);//paso la pila y la regla, para hacer los pops correspondientes
+                    Nodo temp = Transicion(pila, -valor_devuelto);
+                    temp.Token.Id = reglas[-valor_devuelto].X; ;
+                    pila_tokens.Push(temp);//paso la pila y la regla, para hacer los pops correspondientes
                 }
                 else if (valor_devuelto > 0)                        //si cae aquí el token actual es descartado
                 {                                                   //y se agrega su id en la pila junto con el anterior
@@ -293,7 +294,6 @@ namespace WindowsFormsApp1
                 }
                 else break;                                         //no aceptada
             }
-            raiz = pila.Pop();
             MostrarR(false);
             return;
         }
@@ -301,6 +301,8 @@ namespace WindowsFormsApp1
         {
             if (!b)
                 MessageBox.Show("Invalido", "Analizador Sintactico", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            else 
+                MessageBox.Show("Arbol formado", "Analizador Sintactico", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
         #endregion
 
@@ -312,29 +314,18 @@ namespace WindowsFormsApp1
         }
         public Nodo Transicion(Stack<Nodo> pila, int regla)
         {
-            Nodo aux = new Nodo(new Token("null", "", reglas[regla].X));
-            //Programa -> Definiciones
-            //Definicion -> DefVar
-            //Definicion -> DefFunc
-            //DefLocal -> DefVar
-            //DefLocal->Sentencia
-            //Expresion -> LlamadaFunc
-            //SentenciaBloque -> Sentencia
-            //SentenciaBloque->Bloque
+            Nodo aux = new Nodo(new Token("null", "", 0));
             if (regla == 0 || regla == 3 || regla == 4 || regla == 16 || regla == 17 || regla == 32 || regla == 36 || regla == 37)
             {
                 pila.Pop();//estado
                 aux = pila.Pop();//definiciones
             }
-            //BloqFunc -> { DefLocales }
-            //Bloque -> { Sentencias }
-            //Expresion -> ( Expresion )
             else if (regla == 13 || regla == 27 || regla == 38)
             {
                 pila.Pop();//estado
                 pila.Pop();//{
                 pila.Pop();//estado
-                aux = pila.Pop();//deflocales
+                aux = pila.Pop();//nodo
                 pila.Pop();//estado
                 pila.Pop();//}
             }
@@ -343,12 +334,12 @@ namespace WindowsFormsApp1
                 pila.Pop();//estado
                 pila.Pop();//;
                 pila.Pop();//estado
-                aux = pila.Pop();//llamadafunc
+                aux = pila.Pop();//nodo
             }
             else if (regla == 26)//Otro -> else SentenciaBloque
             {
                 pila.Pop();//estado
-                aux = pila.Pop();//sentenciabloque
+                aux = pila.Pop();//nodo
                 pila.Pop();//estado
                 pila.Pop();//else
             }
@@ -374,12 +365,12 @@ namespace WindowsFormsApp1
         }
         public Nodo ReglasGeneran2(Stack<Nodo> pila, int cant)
         {
-            Nodo aux = new Nodo(), sig;
+            Nodo aux, sig;
             pila.Pop();//estado
             sig = pila.Pop();//sig
             pila.Pop();//estado
             aux = pila.Pop();//nodo
-            if(cant != 2)
+            if(cant > 2)
             {
                 pila.Pop();//estado
                 pila.Pop();//,
