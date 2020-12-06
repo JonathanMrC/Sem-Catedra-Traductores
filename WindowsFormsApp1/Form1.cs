@@ -19,6 +19,8 @@ namespace WindowsFormsApp1
         Dictionary<string, int> c_reservados;
         List<Point> reglas;
         List<List<int>> tabla;
+        List<ElementoTS> tablaSimbolos;
+        Queue<String> errores;
         bool BALE;
         Nodo raiz;
         public Form()
@@ -29,6 +31,8 @@ namespace WindowsFormsApp1
             tabla = new List<List<int>>();
             tokens = new Queue<Token>();
             reglas = new List<Point>();
+            tablaSimbolos = new List<ElementoTS>();
+            errores = new Queue<string>();
             CargarDatos();
             BALE = false;
             InitializeComponent();
@@ -42,6 +46,7 @@ namespace WindowsFormsApp1
             dgv.Rows.Add("Lexema"); dgv.Rows.Add("Id");dgv.Rows.Add("Nombre");
             dgv.Refresh();
         }
+       
         int StringtoInt(string s)
         {
             int t = 0, i = 0;
@@ -96,6 +101,9 @@ namespace WindowsFormsApp1
         {
             Formatodgv();
             tokens.Clear();
+            errores.Clear();
+            tablaSimbolos.Clear();
+            txtbox_errores.Clear();
             AnalizadorLexico(txtbox.Text + "$");
             AgregarCont();
             if (BALE)           //bandera analizador lexico error
@@ -199,7 +207,7 @@ namespace WindowsFormsApp1
                     {
                         act--;
                         cad_act = cad_act.Substring(0, cad_act.Length - 1);
-                        EstadoFinal("Constante", ref cad_act, 17, ref e);
+                        EstadoFinal("Constante", ref cad_act, 13, ref e);
                     }
                 }
                 else if(e == 8)
@@ -278,7 +286,9 @@ namespace WindowsFormsApp1
                     if (valor_devuelto == -1) {                     //aceptada
                         pila.Pop();//estado
                         raiz = pila.Pop();
-                        MostrarR(true);
+                        raiz.ValidaTipo(tablaSimbolos, errores);
+                        if (errores.Count == 0) MessageBox.Show("Terminado sin errores", "Analisis Semantico", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        MostrarErrores();
                         return;
                     }
                     ++valor_devuelto;                               //decremento la posicion
@@ -301,8 +311,12 @@ namespace WindowsFormsApp1
         {
             if (!b)
                 MessageBox.Show("Invalido", "Analizador Sintactico", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            else 
-                MessageBox.Show("Arbol formado", "Analizador Sintactico", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
+
+        void MostrarErrores()
+        {
+            txtbox_errores.Clear();
+            foreach (string s in errores) txtbox_errores.Text += s + "\r\n";
         }
         #endregion
 
