@@ -11,10 +11,8 @@ namespace WindowsFormsApp1
         public Nodo Sig { get; set; }
         public Token Token { get; set; }
         public string Ambito { get; set; }
-
         public char TipoDato { get; set; }
         public string CadenaParametros { get; set; }
-
         public Nodo(Nodo siguiente, Token token, string ambito)
         {
             Ambito = ambito;
@@ -47,7 +45,6 @@ namespace WindowsFormsApp1
             CadenaParametros = "";
             TipoDato = '\0';
         }
-    
         public char GetTipoDato(string s)
         {
             if (s == "int") return 'i';
@@ -55,7 +52,6 @@ namespace WindowsFormsApp1
             else if (s == "char") return 'c';
             return 'v';
         }
-
         public virtual void ValidaTipo(List<ElementoTS> tablaSimbolos, Queue<string> errores)
         {
             if (Sig != null) Sig.ValidaTipo(tablaSimbolos, errores);
@@ -70,6 +66,7 @@ namespace WindowsFormsApp1
             }
 
         }
+        #region Funciones de ayuda validar int/float/esnum/buscartipodato
         public char BuscarTablaSimbolos(List<ElementoTS> tablaSimbolos, string id, string ambito)
         {
             foreach (ElementoTS e in tablaSimbolos) if (e.id == id && e.ambito == ambito)return e.tipo;
@@ -82,7 +79,6 @@ namespace WindowsFormsApp1
             return 'e';
         }
         
-        #region Funciones de ayuda validar int/float/esnum
         public bool EsInt(string cadena)
         {
             if (cadena == "") return false;
@@ -661,24 +657,30 @@ namespace WindowsFormsApp1
                 if(derecha.Token.Nombre != "Operacion" && derecha.Token.Nombre != "")
                     errores.Enqueue("La variable: " + derecha.Token.Lexema + " no ha sido declarada");
             }
-
             if (izquierda != null)//tiene izquierda
             {
                 izquierda.Ambito = Ambito;
                 izquierda.TipoDato = TipoDato;
                 izquierda.ValidaTipo(tablaSimbolos, errores);
                 tipodato2 = izquierda.TipoDato;
-
                 if (tipodato2 == 'e')
                 {
                     if (izquierda.Token.Nombre != "Operacion" && derecha.Token.Nombre != "")
                         errores.Enqueue("La variable: " + izquierda.Token.Lexema + " no ha sido declarada");
                 }
-
                 if (tipodato2 == tipodato3 && tipodato2 != 'e') {
-                    if (Sig != null) Sig.ValidaTipo(tablaSimbolos, errores);
+                        if (Sig != null) Sig.ValidaTipo(tablaSimbolos, errores);
                 }
-                else tipodato3 = 'e';
+                else
+                {
+                    string der, izq;
+                    if (derecha.Token.Nombre != "Operacion" && derecha.Token.Nombre != "") der = derecha.Token.Lexema;
+                    else der = "Operacion derecha";
+                    if (izquierda.Token.Nombre != "Operacion" && izquierda.Token.Nombre != "") izq = izquierda.Token.Lexema;
+                    else izq = "Operacion izquieda";
+                    errores.Enqueue("Los tipos de datos entre " + izq + " y " + der + " son distintos");
+                    tipodato3 = 'e';
+                }
             }
             TipoDato = tipodato3;
         }
